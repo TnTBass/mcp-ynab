@@ -1,0 +1,19 @@
+[project]
+name = "ynab-mcp-server"
+version = "0.1.0"
+description = "MCP server for YNAB (You Need A Budget) API"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "httpx>=0.28.1",
+    "mcp[cli]>=1.26.0",
+    "pydantic>=2.11.3",
+    "pydantic-settings>=2.9.1",
+    "sqlalchemy[asyncio]>=2.0.41",
+    "aiosqlite>=0.21.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.2",
+]
