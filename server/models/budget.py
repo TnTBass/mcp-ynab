@@ -1,6 +1,6 @@
 from pydantic import Field
 
-from src.models.common import YNABBaseModel
+from server.models.common import YNABBaseModel
 
 BUDGET_SUMMARY_DISPLAY_EXCLUDE = {"last_modified_on", "first_month", "last_month"}
 

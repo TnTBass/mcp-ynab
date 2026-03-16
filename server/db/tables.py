@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 from sqlalchemy import JSON, Boolean, DateTime, Integer, String, UniqueConstraint
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
-from src.models.common import YNABBaseModel
+from server.models.common import YNABBaseModel
 
 
 class Base(DeclarativeBase):

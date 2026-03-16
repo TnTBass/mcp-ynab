@@ -1,7 +1,7 @@
 from pydantic import Field
 
-from src.models.common import YNABBaseModel
-from src.models.category import Category
+from server.models.common import YNABBaseModel
+from server.models.category import Category
 
 MONTH_DISPLAY_EXCLUDE = {"deleted"}
 

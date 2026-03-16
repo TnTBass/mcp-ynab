@@ -2,7 +2,7 @@ from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, create_async_engin
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import event
 
-from src.db.tables import Base
+from server.db.tables import Base
 
 _engine: AsyncEngine | None = None
 _session_factory: sessionmaker | None = None

@@ -1,6 +1,6 @@
 from pydantic import Field
 
-from src.models.common import YNABBaseModel
+from server.models.common import YNABBaseModel
 
 
 class Subtransaction(YNABBaseModel):

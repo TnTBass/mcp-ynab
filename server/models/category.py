@@ -1,6 +1,6 @@
 from pydantic import Field
 
-from src.models.common import YNABBaseModel
+from server.models.common import YNABBaseModel
 
 # Fields excluded from the standard category list display
 CATEGORY_LIST_EXCLUDE = {"category_group_id", "category_group_name",

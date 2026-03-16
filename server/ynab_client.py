@@ -1,7 +1,7 @@
 import httpx
 from typing import Any
 
-from src.models import (
+from server.models import (
     Account,
     BudgetDetail,
     BudgetSummary,

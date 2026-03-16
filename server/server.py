@@ -6,16 +6,16 @@ from functools import wraps
 import httpx
 from mcp.server.fastmcp import FastMCP
 
-from src.cache.service import CacheService
-from src.config import Settings
-from src.db.engine import init_db
-from src.models.account import ACCOUNT_DISPLAY_EXCLUDE
-from src.models.budget import BUDGET_SUMMARY_DISPLAY_EXCLUDE
-from src.models.category import CATEGORY_DETAIL_INCLUDE, CATEGORY_LIST_EXCLUDE
-from src.models.month import MONTH_DISPLAY_EXCLUDE
-from src.models.payee import PAYEE_DISPLAY_EXCLUDE
-from src.models.transaction import SCHEDULED_TRANSACTION_DISPLAY_EXCLUDE, TRANSACTION_DISPLAY_EXCLUDE
-from src.ynab_client import YNABClient, YNABError
+from server.cache.service import CacheService
+from server.config import Settings
+from server.db.engine import init_db
+from server.models.account import ACCOUNT_DISPLAY_EXCLUDE
+from server.models.budget import BUDGET_SUMMARY_DISPLAY_EXCLUDE
+from server.models.category import CATEGORY_DETAIL_INCLUDE, CATEGORY_LIST_EXCLUDE
+from server.models.month import MONTH_DISPLAY_EXCLUDE
+from server.models.payee import PAYEE_DISPLAY_EXCLUDE
+from server.models.transaction import SCHEDULED_TRANSACTION_DISPLAY_EXCLUDE, TRANSACTION_DISPLAY_EXCLUDE
+from server.ynab_client import YNABClient, YNABError
 
 try:
     settings = Settings()  # type: ignore[call-arg]

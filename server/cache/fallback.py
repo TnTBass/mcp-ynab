@@ -5,7 +5,7 @@ from typing import Any
 
 import httpx
 
-from src.ynab_client import YNABError
+from server.ynab_client import YNABError
 
 logger = logging.getLogger(__name__)
 
