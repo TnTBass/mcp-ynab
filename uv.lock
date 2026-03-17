@@ -347,6 +347,37 @@ cli = [
 ]
 
 [[package]]
+name = "mcp-ynab"
+version = "0.1.0"
+source = { editable = "." }
+dependencies = [
+    { name = "aiosqlite" },
+    { name = "httpx" },
+    { name = "mcp", extra = ["cli"] },
+    { name = "pydantic" },
+    { name = "pydantic-settings" },
+    { name = "sqlalchemy", extra = ["asyncio"] },
+]
+
+[package.dev-dependencies]
+dev = [
+    { name = "pytest" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "aiosqlite", specifier = ">=0.21.0" },
+    { name = "httpx", specifier = ">=0.28.1" },
+    { name = "mcp", extras = ["cli"], specifier = ">=1.26.0" },
+    { name = "pydantic", specifier = ">=2.11.3" },
+    { name = "pydantic-settings", specifier = ">=2.9.1" },
+    { name = "sqlalchemy", extras = ["asyncio"], specifier = ">=2.0.41" },
+]
+
+[package.metadata.requires-dev]
+dev = [{ name = "pytest", specifier = ">=9.0.2" }]
+
+[[package]]
 name = "mdurl"
 version = "0.1.2"
 source = { registry = "https://pypi.org/simple" }
@@ -752,34 +783,3 @@ sdist = { url = "https://files.pythonhosted.org/packages/32/ce/eeb58ae4ac36fe09e
 wheels = [
     { url = "https://files.pythonhosted.org/packages/83/e4/d04a086285c20886c0daad0e026f250869201013d18f81d9ff5eada73a88/uvicorn-0.41.0-py3-none-any.whl", hash = "sha256:29e35b1d2c36a04b9e180d4007ede3bcb32a85fbdfd6c6aeb3f26839de088187", size = 68783, upload-time = "2026-02-16T23:07:22.357Z" },
 ]
-
-[[package]]
-name = "ynab-mcp"
-version = "0.1.0"
-source = { editable = "." }
-dependencies = [
-    { name = "aiosqlite" },
-    { name = "httpx" },
-    { name = "mcp", extra = ["cli"] },
-    { name = "pydantic" },
-    { name = "pydantic-settings" },
-    { name = "sqlalchemy", extra = ["asyncio"] },
-]
-
-[package.dev-dependencies]
-dev = [
-    { name = "pytest" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "aiosqlite", specifier = ">=0.21.0" },
-    { name = "httpx", specifier = ">=0.28.1" },
-    { name = "mcp", extras = ["cli"], specifier = ">=1.26.0" },
-    { name = "pydantic", specifier = ">=2.11.3" },
-    { name = "pydantic-settings", specifier = ">=2.9.1" },
-    { name = "sqlalchemy", extras = ["asyncio"], specifier = ">=2.0.41" },
-]
-
-[package.metadata.requires-dev]
-dev = [{ name = "pytest", specifier = ">=9.0.2" }]
