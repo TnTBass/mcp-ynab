@@ -26,7 +26,7 @@ This repo contains two things:
 - **`server.py`** — FastMCP tool definitions (30+ tools). All tools use the `@handle_errors` decorator for uniform YNAB/HTTP error handling and lazy DB init.
 - **`ynab_client.py`** — Async httpx client for YNAB API v1.
 - **`cache/`** — 4-tier caching: TTL-based response cache, delta sync (server knowledge tracking), retry with exponential backoff, SQLite persistence.
-- **`models/`** — Pydantic models with `*_DISPLAY_EXCLUDE` / `*_INCLUDE` sets that control which fields are serialized back to the LLM (keeps token usage down).
+- **`models/`** — Pydantic models, each module exports a `*_DEFAULT_EXCLUDE` set defining the fields hidden from MCP responses by default. The registry in `src/server/_shared.py` (`DEFAULT_EXCLUDES`) maps model classes to their default exclude sets. Every MCP tool accepts an optional `exclude_fields: list[str]` param that, when provided, fully replaces the default. See `FIELDS.md` for the per-model field reference.
 - **`config.py`** — `Settings` via pydantic-settings. Cache DB path is platform-specific (`~/Library/Application Support/ynab-mcp-server/cache.db` on macOS).
 
 ### Key conventions
