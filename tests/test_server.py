@@ -470,6 +470,94 @@ class TestUpdateCategoryForMonth:
         assert call_args[0][2] == 500000  # third positional arg is budgeted in milliunits
 
 
+class TestUpdateCategoryGoalType:
+    @pytest.mark.asyncio
+    async def test_sends_goal_type_when_provided(self, mock_cache):
+        from src.server import update_category
+
+        mock_cache.update_category = AsyncMock(return_value=_make_category(goal_type="MF", goal_target=400000))
+        await update_category(
+            plan_id="bud-1", category_id="cat-1", goal_target=400.00, goal_type="MF"
+        )
+        call_args = mock_cache.update_category.call_args
+        sent = call_args[0][1]
+        assert sent["goal_type"] == "MF"
+        assert sent["goal_target"] == 400000
+
+    @pytest.mark.asyncio
+    async def test_omits_goal_type_when_not_provided(self, mock_cache):
+        from src.server import update_category
+
+        mock_cache.update_category = AsyncMock(return_value=_make_category())
+        await update_category(plan_id="bud-1", category_id="cat-1", goal_target=400.00)
+        sent = mock_cache.update_category.call_args[0][1]
+        assert "goal_type" not in sent
+
+
+class TestAutoAssignMonthlyTargets:
+    @pytest.mark.asyncio
+    async def test_assigns_categories_with_goal_targets(self, mock_cache):
+        from src.server import auto_assign_monthly_targets
+
+        bills = _make_category_group(id="grp-1", name="Bills")
+        bills.categories = [
+            _make_category(id="c1", name="Rent", goal_target=1500000),
+            _make_category(id="c2", name="Utilities", goal_target=200000),
+            _make_category(id="c3", name="Unset", goal_target=None),
+        ]
+        mock_cache.get_categories = AsyncMock(return_value=[bills])
+        mock_cache.update_category_for_month = AsyncMock(
+            side_effect=lambda month, cid, milli, pid: _make_category(
+                id=cid, name={"c1": "Rent", "c2": "Utilities"}[cid], budgeted=milli
+            )
+        )
+
+        result = json.loads(await auto_assign_monthly_targets(
+            plan_id="bud-1", month="2026-04-01"
+        ))
+
+        assert result["categories_assigned"] == 2
+        assert result["total_budgeted"] == 1700.0
+        assert mock_cache.update_category_for_month.call_count == 2
+
+    @pytest.mark.asyncio
+    async def test_skips_internal_groups_and_hidden_categories(self, mock_cache):
+        from src.server import auto_assign_monthly_targets
+
+        internal = _make_category_group(id="grp-i", name="Internal Master Category")
+        internal.categories = [_make_category(id="ix", goal_target=100000)]
+        cc = _make_category_group(id="grp-cc", name="Credit Card Payments")
+        cc.categories = [_make_category(id="cx", goal_target=100000)]
+        bills = _make_category_group(id="grp-1", name="Bills")
+        bills.categories = [
+            _make_category(id="c1", goal_target=1000000, hidden=True),
+            _make_category(id="c2", goal_target=500000, deleted=True),
+            _make_category(id="c3", goal_target=300000),
+        ]
+        mock_cache.get_categories = AsyncMock(return_value=[internal, cc, bills])
+        mock_cache.update_category_for_month = AsyncMock(
+            return_value=_make_category(id="c3", budgeted=300000)
+        )
+
+        result = json.loads(await auto_assign_monthly_targets(
+            plan_id="bud-1", month="2026-04-01"
+        ))
+
+        assert result["categories_assigned"] == 1
+        mock_cache.update_category_for_month.assert_called_once()
+        assert mock_cache.update_category_for_month.call_args[0][1] == "c3"
+
+    @pytest.mark.asyncio
+    async def test_resolves_current_to_first_of_month(self, mock_cache):
+        from src.server import auto_assign_monthly_targets
+
+        mock_cache.get_categories = AsyncMock(return_value=[])
+        result = json.loads(await auto_assign_monthly_targets(plan_id="bud-1"))
+        # month is normalized to YYYY-MM-01
+        assert result["month"].endswith("-01")
+        assert len(result["month"]) == 10
+
+
 # ── Payee Tools ───────────────────────────────────────────────
 
 
