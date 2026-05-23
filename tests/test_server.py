@@ -501,9 +501,10 @@ class TestAutoAssignMonthlyTargets:
 
         bills = _make_category_group(id="grp-1", name="Bills")
         bills.categories = [
-            _make_category(id="c1", name="Rent", goal_target=1500000),
-            _make_category(id="c2", name="Utilities", goal_target=200000),
+            _make_category(id="c1", name="Rent", goal_type="MF", goal_target=1500000),
+            _make_category(id="c2", name="Utilities", goal_type="NEED", goal_cadence=1, goal_target=200000),
             _make_category(id="c3", name="Unset", goal_target=None),
+            _make_category(id="c4", name="Emergency Fund", goal_type="TB", goal_target=10000000),
         ]
         mock_cache.get_categories = AsyncMock(return_value=[bills])
         mock_cache.update_category_for_month = AsyncMock(
@@ -525,14 +526,14 @@ class TestAutoAssignMonthlyTargets:
         from src.server import auto_assign_monthly_targets
 
         internal = _make_category_group(id="grp-i", name="Internal Master Category")
-        internal.categories = [_make_category(id="ix", goal_target=100000)]
+        internal.categories = [_make_category(id="ix", goal_type="MF", goal_target=100000)]
         cc = _make_category_group(id="grp-cc", name="Credit Card Payments")
-        cc.categories = [_make_category(id="cx", goal_target=100000)]
+        cc.categories = [_make_category(id="cx", goal_type="MF", goal_target=100000)]
         bills = _make_category_group(id="grp-1", name="Bills")
         bills.categories = [
-            _make_category(id="c1", goal_target=1000000, hidden=True),
-            _make_category(id="c2", goal_target=500000, deleted=True),
-            _make_category(id="c3", goal_target=300000),
+            _make_category(id="c1", goal_type="MF", goal_target=1000000, hidden=True),
+            _make_category(id="c2", goal_type="MF", goal_target=500000, deleted=True),
+            _make_category(id="c3", goal_type="MF", goal_target=300000),
         ]
         mock_cache.get_categories = AsyncMock(return_value=[internal, cc, bills])
         mock_cache.update_category_for_month = AsyncMock(

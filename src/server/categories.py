@@ -1,5 +1,7 @@
+import json
 from datetime import date
 
+from src.models.common import milliunits_to_dollars
 from src.server import _shared
 from src.server._shared import dollars_to_milliunits, serialize, serialize_list
 
@@ -231,46 +233,59 @@ async def update_category_for_month(
 @_shared.mcp.tool()
 @_shared.handle_errors
 async def auto_assign_monthly_targets(plan_id: str, month: str = "current") -> str:
-    """Assign budgets to all categories based on their goal targets.
+    """Assign budgets to all categories based on their monthly goal targets.
 
-    Mirrors YNAB's Auto-Assign → Monthly Targets button. For every category
-    that has a goal_target set, assigns the goal amount as the budgeted value
-    for the given month. Skips hidden, deleted, and internal groups
+    Mirrors YNAB's Auto-Assign -> Monthly Targets button. Only assigns categories
+    with monthly-cadence goals: goal_type 'MF', or goal_type 'NEED' with
+    goal_cadence == 1. Skips hidden, deleted, and internal groups
     (Internal Master Category, Credit Card Payments, Hidden Categories).
 
     Args:
         plan_id: The plan ID (use list_plans to find available IDs)
         month: Month in YYYY-MM-DD format (e.g. '2026-05-01') or 'current'. Defaults to current month.
     """
-    import json
-
     if month == "current":
         today = date.today()
         month = today.replace(day=1).strftime("%Y-%m-%d")
 
     groups = await _shared.cache.get_categories(plan_id)
     assignments = []
+    total_mu = 0
     for group in groups:
         if group.name in AUTO_ASSIGN_SKIP_GROUPS or group.hidden or group.deleted:
             continue
         for cat in group.categories:
             if cat.hidden or cat.deleted or not cat.goal_target:
                 continue
-            updated = await _shared.cache.update_category_for_month(
-                month, cat.id, cat.goal_target, plan_id
+            is_monthly = cat.goal_type == "MF" or (
+                cat.goal_type == "NEED" and cat.goal_cadence == 1
             )
-            assignments.append({
-                "name": updated.name,
-                "group": group.name,
-                "budgeted": updated.budgeted / 1000,
-            })
+            if not is_monthly:
+                continue
+            try:
+                updated = await _shared.cache.update_category_for_month(
+                    month, cat.id, cat.goal_target, plan_id
+                )
+                total_mu += updated.budgeted
+                assignments.append({
+                    "name": updated.name,
+                    "group": group.name,
+                    "budgeted": milliunits_to_dollars(updated.budgeted),
+                    "status": "ok",
+                })
+            except Exception as e:
+                assignments.append({
+                    "name": cat.name,
+                    "group": group.name,
+                    "status": "error",
+                    "error": str(e),
+                })
 
-    total = sum(a["budgeted"] for a in assignments)
     return json.dumps(
         {
             "month": month,
-            "categories_assigned": len(assignments),
-            "total_budgeted": round(total, 2),
+            "categories_assigned": sum(1 for a in assignments if a["status"] == "ok"),
+            "total_budgeted": milliunits_to_dollars(total_mu),
             "assignments": assignments,
         },
         indent=2,
